@@ -470,6 +470,29 @@ function get_webrtc() {
     update2Revision "$1"
 }
 
+function build_libvpx() {
+    echo "Building libvpx"
+    cd $WEBRTC/src/chromium/src/third_party/libvpx/source/libvpx
+    ./build/make/iosbuild.sh --preserve-build-output
+}
+
+function package() {
+    echo "Packaging"
+    WEBRTC_REVISION=`get_revision_number`
+    echo "$BUILD/webrtc-ios"
+    create_directory_if_not_found "$BUILD/webrtc-ios"
+    create_directory_if_not_found "$BUILD/webrtc-ios/include"
+    create_directory_if_not_found "$BUILD/webrtc-ios/lib"
+    cp -fv "$BUILD/libWebRTC-$WEBRTC_REVISION-arm-intel-Release.a" "$BUILD/webrtc-ios/lib/libWebRTC.a"
+    cp -fvR "$WEBRTC/src/talk/app/webrtc/objc/public/" "$BUILD/webrtc-ios/include"
+    cp -fvR "$WEBRTC/src/chromium/src/third_party/libvpx/source/libvpx/VPX.framework/Headers/vpx" "$BUILD/webrtc-ios/include"
+    pushd "$BUILD/webrtc-ios/"
+    zip -r "webrtc-ios-$WEBRTC_REVISION.zip" "include/" "lib/"
+    mv "webrtc-ios-$WEBRTC_REVISION.zip" "../"
+    popd
+    rm -r $BUILD/webrtc-ios/
+}
+
 # Build webrtc for an ios device and simulator, then create a universal library
 function build_webrtc() {
     pull_depot_tools
@@ -478,6 +501,7 @@ function build_webrtc() {
     build_apprtc_sim
     build_apprtc_sim64
     lipo_intel_and_arm
+    package
 }
 
 # Create the static library, requires an argument specifiying Debug or Release
