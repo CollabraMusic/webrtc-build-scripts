@@ -250,8 +250,12 @@ function sync() {
 function twiddle_objc_target () {
     cd $WEBRTC
     echo "Adding a new libWebRTC_objc target"
-    echo "$PROJECT_DIR/insert_two_lines_after_text.py" 
-    python "$PROJECT_DIR/insert_two_lines_after_text.py"  "$WEBRTC/src/webrtc/libjingle_examples.gyp"
+    
+    if [ -b "$WEBRTC/src/webrtc/libjingle_examples.gyp" ]
+    then
+        echo "$PROJECT_DIR/insert_two_lines_after_text.py" 
+        python "$PROJECT_DIR/insert_two_lines_after_text.py"  "$WEBRTC/src/webrtc/libjingle_examples.gyp"
+    fi
 }
 
 function untwiddle_objc_target () {
@@ -501,6 +505,7 @@ function build_webrtc() {
     build_apprtc_sim
     build_apprtc_sim64
     lipo_intel_and_arm
+    build_libvpx
     package
 }
 
